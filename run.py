@@ -6,6 +6,7 @@ from exp.exp_main import Exp_Main
 import random
 import numpy as np
 from op.mpa import Mpa
+from log.Logger import Logger
 
 
 def main():
@@ -264,9 +265,14 @@ def main():
             func = lambda hyperparameters_list: fitFunc(exp, setting, hyperparameters_list)
             mpa = Mpa(search_agents_no=5, max_iter=5, dim=2, ub=[300, 0.05], lb=[100, 0.001], fobj=func)
             [best_score, best_pos, convergence_curve] = mpa.opt()
-            print(best_pos.shape)
+            print(best_pos)
             print(best_score)
-            print(convergence_curve.shape)
+            print(convergence_curve)
+
+            log = Logger('log/best_result', level='debug')
+            log.logger.info(best_pos)
+            log.logger.info(best_score)
+            log.logger.info(convergence_curve)
 
 def update_hyparameter(args, hyperparameters_list):
     args.hidden_size = round(hyperparameters_list[0])

@@ -1,6 +1,7 @@
 import os
 import torch
 import numpy as np
+from log.Logger import Logger
 
 
 class Exp_Basic(object):
@@ -8,6 +9,7 @@ class Exp_Basic(object):
         self.args = args
         self.device = self._acquire_device()
         self._build_model()
+        self.log = Logger('log/exp_record.log', level='debug')
 
     def _build_model(self):
         raise NotImplementedError
