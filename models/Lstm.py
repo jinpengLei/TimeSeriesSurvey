@@ -24,5 +24,10 @@ class Model(nn.Module):
     def forward(self, X):
         X = X.to(torch.float32)
         o, (hid, cell) = self.lstm_layer(X)
-        output = self.linear(hid.reshape((-1,  hid.shape[-1])))
-        return output.unsqueeze(0)
+        if self.num_directions == 2:
+            hid = torch.cat([hid[0], hid[1]], dim=1)
+        hid = hid.reshape((-1, hid.shape[-1]))
+        output = self.linear(hid)
+        # o = o[:,-1, :]
+        # output = self.linear(o)
+        return output.unsqueeze(1)

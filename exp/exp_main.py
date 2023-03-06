@@ -159,7 +159,6 @@ class Exp_Main(Exp_Basic):
 
                 f_dim = -1 if self.args.features == 'MS' else 0
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-
                 loss = criterion(outputs, batch_y)
                 train_loss.append(loss.item())
 
@@ -260,8 +259,8 @@ class Exp_Main(Exp_Basic):
                     visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
         preds = np.array(preds)
         trues = np.array(trues)
-        if self.args.model == 'Lstm':
-            preds = preds.swapaxes(1, 2)
+        # if self.args.model == 'Lstm':
+        #     preds = preds.swapaxes(1, 2)
         print('test shape:', preds.shape, trues.shape)
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
         trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
@@ -271,7 +270,9 @@ class Exp_Main(Exp_Basic):
         folder_path = './results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
-
+        print("pt shape")
+        print(preds.shape)
+        print(trues.shape)
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         print('mse:{}, mae:{}'.format(mse, mae))
         f = open("result.txt", 'a')
@@ -284,7 +285,9 @@ class Exp_Main(Exp_Basic):
         np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
         np.save(folder_path + 'pred.npy', preds)
         np.save(folder_path + 'true.npy', trues)
-        self.log.logger.info("learning_rate:{} hidden_size:{} mse:{} mae:{}".format(self.args.learning_rate, self.args.hidden_size, mse, mae))
+        self.log.logger.info("learning_rate:{} hidden_size:{} mse:{} mae:{}".format(self.args.learning_rate, self.model.num_hiddens, mse, mae))
+        # self.log.logger.info("learning_rate:{} hidden_size:{} mse:{} mae:{}".format(self.args.learning_rate, self.args.hidden_size, mse, mae))
+
         return mse
 
     def predict(self, setting, load=False):

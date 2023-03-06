@@ -98,7 +98,7 @@ def main():
     parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
     parser.add_argument('--devices', type=str, default='0,1', help='device ids of multi gpus')
 
-    parser.add_argument('--mpa', type=bool, default=False, help='use mpa select hyperparameters')
+    parser.add_argument('--mpa', action="store_true", help='use mpa select hyperparameters')
 
     args = parser.parse_args()
 
@@ -132,6 +132,8 @@ def main():
     print('Args in experiment:')
     print(args)
 
+    lg = Logger('log/exp_record.log', level='debug')
+    lg.logger.info("==============start Exp====================")
     Exp = Exp_Main
     if args.model != "Lstm":
         if args.is_training:
@@ -197,6 +199,7 @@ def main():
             torch.cuda.empty_cache()
     else:
         if args.mpa is False:
+            print("without mpa")
             if args.is_training:
                 setting = '{}_{}_{}_{}_sl{}_ll{}_pl{}_is{}_hs{}_ops{}_bi{}_eb{}_dt{}_{}'.format(
                     args.task_id,
@@ -273,6 +276,7 @@ def main():
             log.logger.info(best_pos)
             log.logger.info(best_score)
             log.logger.info(convergence_curve)
+    lg.logger.info("==============end Exp====================")
 
 def update_hyparameter(args, hyperparameters_list):
     args.hidden_size = round(hyperparameters_list[0])
