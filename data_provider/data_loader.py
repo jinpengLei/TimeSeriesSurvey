@@ -268,7 +268,6 @@ class Dataset_Custom(Dataset):
         self.data_x = data[border1:border2]
         self.data_y = data[border1:border2]
         self.data_stamp = data_stamp
-        print(self.data_stamp)
 
     def __getitem__(self, index):
         s_begin = index
