@@ -285,7 +285,10 @@ class Exp_Main(Exp_Basic):
         np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
         np.save(folder_path + 'pred.npy', preds)
         np.save(folder_path + 'true.npy', trues)
-        self.log.logger.info("learning_rate:{} hidden_size:{} mse:{} mae:{}".format(self.args.learning_rate, self.model.num_hiddens, mse, mae))
+        if self.args.model == "lstm":
+            self.log.logger.info(
+                "learning_rate:{} hidden_size:{} mse:{} mae:{}".format(self.args.learning_rate, self.model.num_hiddens,
+                                                                       mse, mae))
         # self.log.logger.info("learning_rate:{} hidden_size:{} mse:{} mae:{}".format(self.args.learning_rate, self.args.hidden_size, mse, mae))
 
         return mse
