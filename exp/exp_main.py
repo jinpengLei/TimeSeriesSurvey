@@ -223,7 +223,7 @@ class Exp_Main(Exp_Basic):
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
-                if self.args.model == 'Lstm':
+                if self.args.model == 'Lstm' or self.args.model =='TpaLstm':
                     if self.args.use_amp:
                         with torch.cuda.amp.autocast():
                             outputs = self.model(batch_x)
@@ -286,7 +286,7 @@ class Exp_Main(Exp_Basic):
         np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
         np.save(folder_path + 'pred.npy', preds)
         np.save(folder_path + 'true.npy', trues)
-        if self.args.model == "lstm":
+        if self.args.model == "Lstm":
             self.log.logger.info(
                 "learning_rate:{} hidden_size:{} mse:{} mae:{}".format(self.args.learning_rate, self.model.num_hiddens,
                                                                        mse, mae))
