@@ -7,7 +7,6 @@ class Model(nn.Module):
         bidirectional = False
         if configs.binary == 2:
             bidirectional = True
-        print(configs)
         self.input_size = configs.input_size
         self.num_hiddens = configs.hidden_size
         self.output_size = configs.output_size

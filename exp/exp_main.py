@@ -7,7 +7,7 @@ import torch.nn as nn
 from torch import optim
 from data_provider.data_factory import data_provider
 from exp.exp_basic import Exp_Basic
-from models import FEDformer, Autoformer, Informer, Transformer, Lstm
+from models import FEDformer, Autoformer, Informer, Transformer, Lstm, TpaLstm
 from utils.tools import EarlyStopping, adjust_learning_rate, visual
 from utils.metrics import metric
 
@@ -27,6 +27,7 @@ class Exp_Main(Exp_Basic):
             'Transformer': Transformer,
             'Informer': Informer,
             'Lstm': Lstm,
+            'TpaLstm': TpaLstm
         }
         model = model_dict[self.args.model].Model(self.args).float()
 
@@ -67,7 +68,7 @@ class Exp_Main(Exp_Basic):
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
-                if self.args.model == 'Lstm':
+                if self.args.model == 'Lstm' or self.args.model == 'TpaLstm':
                     if self.args.use_amp:
                         with torch.cuda.amp.autocast():
                             outputs = self.model(batch_x)
@@ -137,7 +138,7 @@ class Exp_Main(Exp_Basic):
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
-                if self.args.model == 'Lstm':
+                if self.args.model == 'Lstm' or self.args.model == 'TpaLstm':
                     if self.args.use_amp:
                         with torch.cuda.amp.autocast():
                             outputs = self.model(batch_x)

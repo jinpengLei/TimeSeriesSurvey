@@ -100,6 +100,30 @@ def main():
 
     parser.add_argument('--mpa', action="store_true", help='use mpa select hyperparameters')
 
+    parser.add_argument('--hidden_state_features', type=int, default=12,
+                        help='number of features in LSTMs hidden states')
+    parser.add_argument('--num_layers_lstm', type=int, default=1,
+                        help='num of lstm layers')
+    parser.add_argument('--hidden_state_features_uni_lstm', type=int, default=1,
+                        help='number of features in LSTMs hidden states for univariate time series')
+    parser.add_argument('--num_layers_uni_lstm', type=int, default=1,
+                        help='num of lstm layers for univariate time series')
+    parser.add_argument('--attention_size_uni_lstm', type=int, default=10,
+                        help='attention size for univariate lstm')
+    parser.add_argument('--hidCNN', type=int, default=10,
+                        help='number of CNN hidden units')
+    parser.add_argument('--hidRNN', type=int, default=100,
+                        help='number of RNN hidden units')
+    parser.add_argument('--window', type=int, default=24 * 7,
+                        help='window size')
+    parser.add_argument('--CNN_kernel', type=int, default=1,
+                        help='the kernel size of the CNN layers')
+    parser.add_argument('--highway_window', type=int, default=24,
+                        help='The window size of the highway component')
+    parser.add_argument('--hidSkip', type=int, default=5)
+    parser.add_argument('--skip', type=float, default=24)
+    parser.add_argument('--output_fun', type=str, default='sigmoid')
+
     args = parser.parse_args()
 
     data_parser = {
@@ -116,7 +140,7 @@ def main():
         data_info = data_parser[args.data]
         args.data_path = data_info['data']
         args.target = data_info['T']
-        if args.model == 'Lstm':
+        if args.model == 'Lstm' or args.model == 'TpaLstm':
             args.input_size, _, args.output_size = data_info[args.features]
         else:
             args.enc_in, args.dec_in, args.c_out = data_info[args.features]
@@ -197,7 +221,7 @@ def main():
             print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             exp.test(setting, test=1)
             torch.cuda.empty_cache()
-    else:
+    elif args.model == 'Lstm':
         if args.mpa is False:
             print("without mpa")
             if args.is_training:
@@ -276,6 +300,61 @@ def main():
             log.logger.info(best_pos)
             log.logger.info(best_score)
             log.logger.info(convergence_curve)
+    else:
+        if args.mpa is False:
+            print("without mpa")
+            if args.is_training:
+                setting = '{}_{}_{}_{}_sl{}_ll{}_pl{}_is{}_hs{}_ops{}_bi{}_eb{}_dt{}_{}'.format(
+                    args.task_id,
+                    args.model,
+                    args.data,
+                    args.features,
+                    args.seq_len,
+                    args.label_len,
+                    args.pred_len,
+                    args.input_size,
+                    args.hidden_state_features,
+                    args.output_size,
+                    args.binary,
+                    args.embed,
+                    args.distil,
+                    args.des)
+                exp = Exp(args)
+                exp.prepare_data()
+                print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
+                exp.train(setting)
+
+                print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+                exp.test(setting)
+
+                if args.do_predict:
+                    print('>>>>>>>predicting : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+                    exp.predict(setting, True)
+
+                torch.cuda.empty_cache()
+            else:
+                setting = '{}_{}_{}_{}_sl{}_ll{}_pl{}_is{}_hs{}_ops{}_bi{}_eb{}_dt{}_{}'.format(
+                    args.task_id,
+                    args.model,
+                    args.data,
+                    args.features,
+                    args.seq_len,
+                    args.label_len,
+                    args.pred_len,
+                    args.input_size,
+                    args.hidden_size,
+                    args.output_size,
+                    args.binary,
+                    args.embed,
+                    args.distil,
+                    args.des)
+
+                exp = Exp(args)
+                exp.prepare_data()
+                print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+                exp.test(setting, test=1)
+                torch.cuda.empty_cache()
+
     lg.logger.info("==============end Exp====================")
 
 def update_hyparameter(args, hyperparameters_list):
