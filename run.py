@@ -159,7 +159,7 @@ def main():
     lg = Logger('log/exp_record.log', level='debug')
     lg.logger.info("==============start Exp====================")
     Exp = Exp_Main
-    if args.model != "Lstm":
+    if args.model != "Lstm" and args.model != 'TpaLstm':
         if args.is_training:
             for ii in range(args.itr):
                 # setting record of experiments
