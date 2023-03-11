@@ -221,7 +221,7 @@ def main():
             print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             exp.test(setting, test=1)
             torch.cuda.empty_cache()
-    elif args.model == 'Lstm':
+    elif args.model == 'Lstm' or args.model == 'TpaLstm':
         if args.mpa is False:
             print("without mpa")
             if args.is_training:
@@ -290,7 +290,17 @@ def main():
             exp = Exp(args)
             exp.prepare_data()
             func = lambda hyperparameters_list: fitFunc(exp, setting, hyperparameters_list)
-            mpa = Mpa(search_agents_no=5, max_iter=5, dim=2, ub=[300, 0.05], lb=[100, 0.001], fobj=func)
+            search_agents_no = 5
+            max_iter = 5
+            if args.model == 'Lstm':
+                dim = 2
+                ub = [300, 0.05]
+                lb = [100, 0.001]
+            else:
+                dim = 5
+                ub = [50, 0.05, 50, 50, 300]
+                lb = [10, 0.001, 8, 8, 60]
+            mpa = Mpa(search_agents_no=5, max_iter=5, dim=dim, ub=ub, lb=lb, fobj=func)
             [best_score, best_pos, convergence_curve] = mpa.opt()
             print(best_pos)
             print(best_score)
@@ -358,13 +368,35 @@ def main():
     lg.logger.info("==============end Exp====================")
 
 def update_hyparameter(args, hyperparameters_list):
-    args.hidden_size = round(hyperparameters_list[0])
-    args.learning_rate = hyperparameters_list[1]
+    if args.model == 'Lstm':
+        args.hidden_size = round(hyperparameters_list[0])
+        args.learning_rate = hyperparameters_list[1]
 
-    print("hidden_size")
-    print(args.hidden_size)
-    print("learning_rate")
-    print(args.learning_rate)
+        print("hidden_size")
+        print(args.hidden_size)
+        print("learning_rate")
+        print(args.learning_rate)
+    else:
+        args.hidden_state_feature = round(hyperparameters_list[0])
+        args.learning_rate = hyperparameters_list[1]
+        args.attention_size_uni_lstm = round(hyperparameters_list[2])
+        args.hidCNN = round(hyperparameters_list[3])
+        args.hidRNN = round(hyperparameters_list[4])
+
+        print("hidden state feature size")
+        print(args.hidden_state_feature)
+        print("learning rate")
+        print(args.learning_rate)
+        print("attention size")
+        print(args.attention_size_uni_lstm)
+        print("hidCNN")
+        print(args.hidCNN)
+        print("hidRNN")
+        print(args.hidRNN)
+
+
+
+
     return args
 
 
