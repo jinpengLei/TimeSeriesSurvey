@@ -135,7 +135,10 @@ def main():
         'ECL': {'data': 'ECL.csv', 'T': 'MT_320', 'M': [321, 321, 321], 'S': [1, 1, 1], 'MS': [321, 321, 1]},
         'Solar': {'data': 'solar_AL.csv', 'T': 'POWER_136', 'M': [137, 137, 137], 'S': [1, 1, 1], 'MS': [137, 137, 1]},
         'TK': {'data': 'train_env.csv', 'T': 'xfwd', 'M': [4, 4, 4], 'S': [1, 1, 1], 'MS': [4, 4, 1]},
-        'ELE': {'data': 'electricity.txt', 'T': 320, 'M': [321, 321, 321], 'S': [1, 1, 1], 'MS': [321, 321, 1]}
+        'ELE': {'data': 'electricity.txt', 'T': 320, 'M': [321, 321, 321], 'S': [1, 1, 1], 'MS': [321, 321, 1]},
+        'SOLAR': {'data': 'solar_AL.txt', 'T': 136, 'M':[137, 137, 137], 'S': [1, 1, 1], 'MS':[137, 137, 1]},
+        'EXC': {'data': 'exchange_rate.txt', 'T': 7, 'M': [8, 8, 8], 'S': [1, 1, 1], 'MS': [8, 8, 1]},
+        'TRAFFIC': {'data': 'traffic.txt', 'T': 861, 'M': [862, 862, 862], 'S': [1, 1, 1], 'MS': [862, 862, 1]},
     }
     if args.data in data_parser.keys():
         data_info = data_parser[args.data]
