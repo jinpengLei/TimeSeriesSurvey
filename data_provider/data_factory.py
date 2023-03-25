@@ -8,7 +8,8 @@ data_dict = {
     'ETTm2': Dataset_ETT_minute,
     'custom': Dataset_Custom,
     'WTH': Dataset_Custom,
-    'TK': Dataset_Custom
+    'TK': Dataset_Custom,
+    'ELE': Dataset_Custom
 }
 
 

@@ -221,9 +221,14 @@ class Dataset_Custom(Dataset):
 
     def __read_data__(self):
         self.scaler = StandardScaler()
-        df_raw = pd.read_csv(os.path.join(self.root_path,
-                                          self.data_path))
-
+        if self.data_path == "electricity.txt":
+            df_raw = pd.read_csv(os.path.join(self.root_path,
+                                              self.data_path), header=None)
+            t = [0] * len(df_raw[0])
+            df_raw.insert(0, 'date', t)
+        else:
+            df_raw = pd.read_csv(os.path.join(self.root_path,
+                                              self.data_path))
         '''
         df_raw.columns: ['date', ...(other features), target feature]
         '''
