@@ -221,7 +221,7 @@ class Dataset_Custom(Dataset):
 
     def __read_data__(self):
         self.scaler = StandardScaler()
-        if self.data_path == "electricity.txt":
+        if self.data_path == "electricity.txt" or self.data_path == "exchange_rate.txt" or self.data_path == "solar_AL.txt" or self.data_path == "traffic.txt":
             df_raw = pd.read_csv(os.path.join(self.root_path,
                                               self.data_path), header=None)
             t = [0] * len(df_raw[0])
