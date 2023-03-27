@@ -9,7 +9,10 @@ data_dict = {
     'custom': Dataset_Custom,
     'WTH': Dataset_Custom,
     'TK': Dataset_Custom,
-    'ELE': Dataset_Custom
+    'ELE': Dataset_Custom,
+    'SOLAR': Dataset_Custom,
+    'EXC': Dataset_Custom,
+    'TRAFFIC': Dataset_Custom
 }
 
 
