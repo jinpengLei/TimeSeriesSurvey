@@ -304,7 +304,7 @@ def main():
                 dim = 5
                 ub = [50, 0.05, 50, 50, 300]
                 lb = [10, 0.001, 8, 8, 60]
-            mpa = Mpa(search_agents_no=5, max_iter=5, dim=dim, ub=ub, lb=lb, fobj=func)
+            mpa = Mpa(search_agents_no=10, max_iter=10, dim=dim, ub=ub, lb=lb, fobj=func)
             [best_score, best_pos, convergence_curve] = mpa.opt()
             print(best_pos)
             print(best_score)
