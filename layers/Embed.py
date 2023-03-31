@@ -17,11 +17,11 @@ class PositionalEmbedding(nn.Module):
 
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
-
         pe = pe.unsqueeze(0)
         self.register_buffer('pe', pe)
 
     def forward(self, x):
+        print(self.pe[:, :x.size(1)].shape)
         return self.pe[:, :x.size(1)]
 
 
@@ -32,7 +32,7 @@ class LearnablePositionalEncoding(nn.Module):
         self.dropout = nn.Dropout(p=dropout)
         # Each position gets its own embedding
         # Since indices are always 0 ... max_len, we don't have to do a look-up
-        self.pe = nn.Parameter(torch.empty(max_len, 1, d_model))  # requires_grad automatically set to True
+        self.pe = nn.Parameter(torch.empty(1, max_len, d_model))  # requires_grad automatically set to True
         nn.init.uniform_(self.pe, -0.02, 0.02)
 
     def forward(self, x):
@@ -43,11 +43,7 @@ class LearnablePositionalEncoding(nn.Module):
             x: [sequence length, batch size, embed dim]
             output: [sequence length, batch size, embed dim]
         """
-        y = self.pe[:x.size(0), :]
-        z = self.pe[:, :x.size(1)]
-        print(y.shape)
-        print(z.shape)
-        x = x + self.pe[:, :x.size(1)]
+        x = self.pe[:, :x.size(1)]
         return self.dropout(x)
 
 class TokenEmbedding(nn.Module):
