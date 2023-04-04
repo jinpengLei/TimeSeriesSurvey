@@ -338,7 +338,7 @@ def main():
             log.logger.info(best_score)
             log.logger.info(convergence_curve)
             log.logger.info("===========min mse mae===============")
-            log.logger.info(min_mse, min_mae)
+            log.logger.info("{}  {}".format(min_mae, min_mae))
     else:
         if args.mpa == 0:
             print("without mpa")
