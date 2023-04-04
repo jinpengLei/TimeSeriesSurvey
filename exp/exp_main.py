@@ -294,8 +294,7 @@ class Exp_Main(Exp_Basic):
             self.log.logger.info("hidden_state_feature:{} learning_rate: {} attention size: {} hidCNN: {} hidRNN: {} mse:{} mae:{}".format(self.args.hidden_state_feature,
                                                                                                                                self.args.learning_rate, self.args.attention_size_uni_lstm, self.args.hidCNN, self.args.hidRNN, mse, mae))
         # self.log.logger.info("learning_rate:{} hidden_size:{} mse:{} mae:{}".format(self.args.learning_rate, self.args.hidden_size, mse, mae))
-
-        return mse
+        return mse, mae
 
     def predict(self, setting, load=False):
         pred_data, pred_loader = self._get_data(flag='pred')

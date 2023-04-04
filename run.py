@@ -5,10 +5,8 @@ import torch
 from exp.exp_main import Exp_Main
 import random
 import numpy as np
-from op.mpa import Mpa
+from op.mpa import Mpa, QIMpa
 from log.Logger import Logger
-
-
 def main():
     fix_seed = 2021
     random.seed(fix_seed)
@@ -98,7 +96,7 @@ def main():
     parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
     parser.add_argument('--devices', type=str, default='0,1', help='device ids of multi gpus')
 
-    parser.add_argument('--mpa', action="store_true", help='use mpa select hyperparameters')
+    parser.add_argument('--mpa', type=int, default=0, help='use mpa select hyperparameters')
 
     parser.add_argument('--hidden_state_features', type=int, default=12,
                         help='number of features in LSTMs hidden states')
@@ -162,6 +160,16 @@ def main():
 
     lg = Logger('log/exp_record.log', level='debug')
     lg.logger.info("==============start Exp====================")
+    is_use_mpa_str = ""
+    if args.mpa == 0:
+        is_use_mpa_str = "withoutMPA"
+    elif args.mpa == 1:
+        is_use_mpa_str = "useMPA"
+    elif args.mpa == 2:
+        is_use_mpa_str = "useQIMPA"
+    else:
+        is_use_mpa_str = "other"
+    lg.logger.info("============{}_{}_{}====================".format(args.model, is_use_mpa_str, args.data))
     Exp = Exp_Main
     if args.model != "Lstm" and args.model != 'TpaLstm':
         if args.is_training:
@@ -226,12 +234,13 @@ def main():
             exp.test(setting, test=1)
             torch.cuda.empty_cache()
     elif args.model == 'Lstm' or args.model == 'TpaLstm':
-        if args.mpa is False:
+        if args.mpa == 0:
             print("without mpa")
             if args.is_training:
-                setting = '{}_{}_{}_{}_sl{}_ll{}_pl{}_is{}_hs{}_ops{}_bi{}_eb{}_dt{}_{}'.format(
+                setting = '{}_{}_{}_{}_{}_sl{}_ll{}_pl{}_is{}_hs{}_ops{}_bi{}_eb{}_dt{}_{}'.format(
                     args.task_id,
                     args.model,
+                    is_use_mpa_str,
                     args.data,
                     args.features,
                     args.seq_len,
@@ -258,9 +267,10 @@ def main():
 
                 torch.cuda.empty_cache()
             else:
-                setting = '{}_{}_{}_{}_sl{}_ll{}_pl{}_is{}_hs{}_ops{}_bi{}_eb{}_dt{}_{}'.format(
+                setting = '{}_{}_{}_{}_{}_sl{}_ll{}_pl{}_is{}_hs{}_ops{}_bi{}_eb{}_dt{}_{}'.format(
                     args.task_id,
                     args.model,
+                    is_use_mpa_str,
                     args.data,
                     args.features,
                     args.seq_len,
@@ -280,8 +290,9 @@ def main():
                 exp.test(setting, test=1)
                 torch.cuda.empty_cache()
         else:
-            setting = '{}_mpa_{}_{}_is{}_ops{}_bi{}_eb{}_dt{}_{}'.format(
+            setting = '{}_{}_{}_{}_is{}_ops{}_bi{}_eb{}_dt{}_{}'.format(
                 args.model,
+                is_use_mpa_str,
                 args.data,
                 args.features,
                 args.input_size,
@@ -304,18 +315,32 @@ def main():
                 dim = 5
                 ub = [50, 0.05, 50, 50, 300]
                 lb = [10, 0.001, 8, 8, 60]
-            mpa = Mpa(search_agents_no=10, max_iter=10, dim=dim, ub=ub, lb=lb, fobj=func)
+            if args.mpa == 1:
+                mpa = Mpa(search_agents_no=10, max_iter=10, dim=dim, ub=ub, lb=lb, fobj=func)
+            elif args.mpa == 2:
+                mpa = QIMpa(search_agents_no=10, max_iter=10, dim=dim, ub=ub, lb=lb, fobj=func)
+            else:
+                pass
             [best_score, best_pos, convergence_curve] = mpa.opt()
             print(best_pos)
             print(best_score)
             print(convergence_curve)
-
+            path = os.join("best_result", setting)
+            file_path = path + "/" + "best_record.npy"
+            min_mse, min_mae = np.load(file_path)
+            print(min_mse)
+            print(min_mae)
             log = Logger('log/best_result', level='debug')
+            log.logger.info("============{}==============".format(setting))
+            log.logger.info("==========best pos===========")
             log.logger.info(best_pos)
+            log.logger.info("==========best score===========")
             log.logger.info(best_score)
             log.logger.info(convergence_curve)
+            log.logger.info("===========min mse mae===============")
+            log.logger.info(min_mse, min_mae)
     else:
-        if args.mpa is False:
+        if args.mpa == 0:
             print("without mpa")
             if args.is_training:
                 setting = '{}_{}_{}_{}_sl{}_ll{}_pl{}_is{}_hs{}_ops{}_bi{}_eb{}_dt{}_{}'.format(
@@ -397,10 +422,6 @@ def update_hyparameter(args, hyperparameters_list):
         print(args.hidCNN)
         print("hidRNN")
         print(args.hidRNN)
-
-
-
-
     return args
 
 
@@ -409,7 +430,17 @@ def fitFunc(exp, setting, hyperparameters_list):
     exp.update_args(args=args)
     exp._build_model()
     exp.train(setting)
-    return exp.test(setting)
+    now_test_mse, now_test_mae = exp.test(setting)
+    path = os.join("best_result", setting)
+    file_path = path + "/" + "best_record.npy"
+    if not os.path.exists(path):
+        os.makedirs(path)
+        np.save(file_path, [now_test_mse, now_test_mae])
+    else:
+        now_best_mse, now_best_mae = np.load(file_path)
+        if(now_test_mse < now_best_mse):
+            np.save(file_path, [now_test_mse, now_test_mae])
+    return now_test_mse
 
 
 if __name__ == "__main__":
