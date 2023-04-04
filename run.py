@@ -325,7 +325,7 @@ def main():
             print(best_pos)
             print(best_score)
             print(convergence_curve)
-            path = os.join("best_result", setting)
+            path = os.path.join("best_result", setting)
             file_path = path + "/" + "best_record.npy"
             min_mse, min_mae = np.load(file_path)
             print(min_mse)
@@ -431,7 +431,7 @@ def fitFunc(exp, setting, hyperparameters_list):
     exp._build_model()
     exp.train(setting)
     now_test_mse, now_test_mae = exp.test(setting)
-    path = os.join("best_result", setting)
+    path = os.path.join("best_result", setting)
     file_path = path + "/" + "best_record.npy"
     if not os.path.exists(path):
         os.makedirs(path)
