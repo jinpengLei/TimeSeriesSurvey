@@ -316,7 +316,7 @@ def main():
                 ub = [50, 0.05, 50, 50, 300]
                 lb = [10, 0.001, 8, 8, 60]
             if args.mpa == 1:
-                mpa = Mpa(search_agents_no=10, max_iter=10, dim=dim, ub=ub, lb=lb, fobj=func)
+                mpa = Mpa(search_agents_no=1, max_iter=1, dim=dim, ub=ub, lb=lb, fobj=func)
             elif args.mpa == 2:
                 mpa = QIMpa(search_agents_no=10, max_iter=10, dim=dim, ub=ub, lb=lb, fobj=func)
             else:
