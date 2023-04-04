@@ -169,7 +169,15 @@ class Mpa():
 
 class QIMpa(Mpa):
     def __init__(self, search_agents_no=25, max_iter=500, lb=-100, ub=100, dim=50, fobj=F1, FADs=0.2, P=0.5):
-        super(Mpa, self).__init__(search_agents_no, max_iter, lb, ub, dim, fobj, FADs, P)
+        self.search_agents_no = search_agents_no
+        self.max_iter = max_iter
+        self.lb = lb
+        self.ub = ub
+        self.dim = dim
+        self.fobj = fobj
+        self.FADs = FADs
+        self.P = P
+
 
     def opt(self):
         print("QI Mpa")
