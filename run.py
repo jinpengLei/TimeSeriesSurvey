@@ -436,16 +436,17 @@ def fitFunc(exp, setting, hyperparameters_list):
     best_model_path = os.path.join("best_model", setting)
     now_model_path = os.path.join("checkpoints", setting)
     now_model_path = now_model_path + "/" + "checkpoint.pth"
-    best_model_path = best_model_path + "/" + "best_model.pth"
     if not os.path.exists(path):
         os.makedirs(path)
         np.save(file_path, [now_test_mse, now_test_mae])
         os.makedirs(best_model_path)
+        best_model_path = best_model_path + "/" + "best_model.pth"
         shutil.move(now_model_path, best_model_path)
     else:
         now_best_mse, now_best_mae = np.load(file_path)
         if(now_test_mse < now_best_mse):
             np.save(file_path, [now_test_mse, now_test_mae])
+            best_model_path = best_model_path + "/" + "best_model.pth"
             shutil.move(now_model_path, best_model_path)
     return now_test_mse
 
