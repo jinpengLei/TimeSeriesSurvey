@@ -318,7 +318,7 @@ def main():
             if args.mpa == 1:
                 mpa = Mpa(search_agents_no=10, max_iter=10, dim=dim, ub=ub, lb=lb, fobj=func)
             elif args.mpa == 2:
-                mpa = QIMpa(search_agents_no=10, max_iter=10, dim=dim, ub=ub, lb=lb, fobj=func)
+                mpa = QIMpa(search_agents_no=1, max_iter=1, dim=dim, ub=ub, lb=lb, fobj=func)
             else:
                 pass
             [best_score, best_pos, convergence_curve] = mpa.opt()
