@@ -1,10 +1,10 @@
 export CUDA_VISIBLE_DEVICES=1
 if [ -d "/best_result" ]; then
-    rm -rf /opt/test
+    rm -rf /best_result
 fi
 
 if [ -d "/best_model" ]; then
-    rm -rf /opt/test
+    rm -rf /best_model
 fi
 
 python -u run.py --label_len 0 --pred_len 1  --data EXC --root_path ./dataset/Customer --data_path exchange_rate.txt --model Lstm --binary 1 --mpa 2 --train_epoch 30
