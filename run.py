@@ -442,12 +442,12 @@ def fitFunc(exp, setting, hyperparameters_list):
         os.makedirs(path)
         np.save(file_path, [now_test_mse, now_test_mae])
         os.makedirs(best_model_path)
-        shutil(now_model_path, best_model_path)
+        shutil.move(now_model_path, best_model_path)
     else:
         now_best_mse, now_best_mae = np.load(file_path)
         if(now_test_mse < now_best_mse):
             np.save(file_path, [now_test_mse, now_test_mae])
-            shutil(now_model_path, best_model_path)
+            shutil.move(now_model_path, best_model_path)
     return now_test_mse
 
 
