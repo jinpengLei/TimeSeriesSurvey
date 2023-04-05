@@ -7,6 +7,7 @@ import random
 import numpy as np
 from op.mpa import Mpa, QIMpa
 from log.Logger import Logger
+import shutil
 def main():
     fix_seed = 2021
     random.seed(fix_seed)
@@ -433,13 +434,20 @@ def fitFunc(exp, setting, hyperparameters_list):
     now_test_mse, now_test_mae = exp.test(setting)
     path = os.path.join("best_result", setting)
     file_path = path + "/" + "best_record.npy"
+    best_model_path = os.path.join("best_model", setting)
+    now_model_path = os.path.join("checkpoints", setting)
+    now_model_path = now_model_path + "/" + "checkpoint.pth"
+    best_model_path = best_model_path + "/" + "best_model.pth"
     if not os.path.exists(path):
         os.makedirs(path)
         np.save(file_path, [now_test_mse, now_test_mae])
+        os.makedirs(best_model_path)
+        shutil(now_model_path, best_model_path)
     else:
         now_best_mse, now_best_mae = np.load(file_path)
         if(now_test_mse < now_best_mse):
             np.save(file_path, [now_test_mse, now_test_mae])
+            shutil(now_model_path, best_model_path)
     return now_test_mse
 
 
