@@ -147,9 +147,8 @@ def main():
             args.input_size, _, args.output_size = data_info[args.features]
         else:
             args.enc_in, args.dec_in, args.c_out = data_info[args.features]
-    print(args.use_gpu)
+    print(torch.cuda.is_available())
     args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
-    print(args.use_gpu)
     if args.use_gpu and args.use_multi_gpu:
         args.dvices = args.devices.replace(' ', '')
         device_ids = args.devices.split(',')
