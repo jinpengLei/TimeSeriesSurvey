@@ -1,9 +1,9 @@
 export CUDA_VISIBLE_DEVICES=1
-if [ ! -d "/best_result" ]; then
+if [ -d "/best_result" ]; then
     rm -rf /opt/test
 fi
 
-if [ ! -d "/best_model" ]; then
+if [ -d "/best_model" ]; then
     rm -rf /opt/test
 fi
 
