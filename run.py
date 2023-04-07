@@ -123,6 +123,9 @@ def main():
     parser.add_argument('--skip', type=float, default=24)
     parser.add_argument('--output_fun', type=str, default='sigmoid')
 
+    parser.add_argument('--search_agents_no', type=int, default=10)
+    parser.add_argument('--max_iter', type=int, default=10)
+
     args = parser.parse_args()
 
     data_parser = {
@@ -316,9 +319,9 @@ def main():
                 ub = [50, 0.05, 50, 50, 300]
                 lb = [10, 0.001, 8, 8, 60]
             if args.mpa == 1:
-                mpa = Mpa(search_agents_no=10, max_iter=10, dim=dim, ub=ub, lb=lb, fobj=func)
+                mpa = Mpa(search_agents_no=args.search_agents_no, max_iter=args.max_iter, dim=dim, ub=ub, lb=lb, fobj=func)
             elif args.mpa == 2:
-                mpa = QIMpa(search_agents_no=10, max_iter=10, dim=dim, ub=ub, lb=lb, fobj=func)
+                mpa = QIMpa(search_agents_no=args.search_agents_no, max_iter=args.max_iter, dim=dim, ub=ub, lb=lb, fobj=func)
             else:
                 pass
             [best_score, best_pos, convergence_curve] = mpa.opt()
