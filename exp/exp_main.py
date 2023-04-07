@@ -291,8 +291,18 @@ class Exp_Main(Exp_Basic):
                 "learning_rate:{} hidden_size:{} mse:{} mae:{}".format(self.args.learning_rate, self.model.num_hiddens,
                                                                        mse, mae))
         elif self.args.model == 'TpaLstm':
-            self.log.logger.info("hidden_state_feature:{} learning_rate: {} attention size: {} hidCNN: {} hidRNN: {} mse:{} mae:{}".format(self.args.hidden_state_feature,
-                                                                                                                               self.args.learning_rate, self.args.attention_size_uni_lstm, self.args.hidCNN, self.args.hidRNN, mse, mae))
+            if self.args.mpa > 0:
+                self.log.logger.info(
+                    "hidden_state_feature:{} learning_rate: {} attention size: {} hidCNN: {} hidRNN: {} mse:{} mae:{}".format(
+                        self.args.hidden_state_feature,
+                        self.args.learning_rate, self.args.attention_size_uni_lstm, self.args.hidCNN, self.args.hidRNN,
+                        mse, mae))
+            else:
+                self.log.logger.info(
+                    "hidden_state_features:{} learning_rate: {} attention size: {} hidCNN: {} hidRNN: {} mse:{} mae:{}".format(
+                        self.args.hidden_state_features,
+                        self.args.learning_rate, self.args.attention_size_uni_lstm, self.args.hidCNN, self.args.hidRNN,
+                        mse, mae))
         # self.log.logger.info("learning_rate:{} hidden_size:{} mse:{} mae:{}".format(self.args.learning_rate, self.args.hidden_size, mse, mae))
         return mse, mae
 
