@@ -306,6 +306,113 @@ class Exp_Main(Exp_Basic):
         # self.log.logger.info("learning_rate:{} hidden_size:{} mse:{} mae:{}".format(self.args.learning_rate, self.args.hidden_size, mse, mae))
         return mse, mae
 
+    def test_best(self, setting):
+        test_data, test_loader = self.test_data, self.test_loader
+        self.model.load_state_dict(torch.load(os.path.join('./best_model/' + setting, 'checkpoint.pth')))
+
+        preds = []
+        trues = []
+        folder_path = './best_test_results/' + setting + '/'
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+        self.model.eval()
+        with torch.no_grad():
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
+                batch_x = batch_x.float().to(self.device)
+                batch_y = batch_y.float().to(self.device)
+
+                batch_x_mark = batch_x_mark.float().to(self.device)
+                batch_y_mark = batch_y_mark.float().to(self.device)
+
+                # decoder input
+                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
+                dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
+                # encoder - decoder
+                if self.args.model == 'Lstm' or self.args.model == 'TpaLstm':
+                    if self.args.use_amp:
+                        with torch.cuda.amp.autocast():
+                            outputs = self.model(batch_x)
+                    else:
+                        outputs = self.model(batch_x)
+                else:
+                    if self.args.use_amp:
+                        with torch.cuda.amp.autocast():
+                            if self.args.output_attention:
+                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                            else:
+                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                    else:
+                        if self.args.output_attention:
+                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                        else:
+                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+
+                f_dim = -1 if self.args.features == 'MS' else 0
+
+                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                outputs = outputs.detach().cpu().numpy()
+                batch_y = batch_y.detach().cpu().numpy()
+
+                pred = outputs  # outputs.detach().cpu().numpy()  # .squeeze()
+                true = batch_y  # batch_y.detach().cpu().numpy()  # .squeeze()
+
+                preds.append(pred)
+                trues.append(true)
+                if i % 20 == 0:
+                    input = batch_x.detach().cpu().numpy()
+                    gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
+                    pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
+                    visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
+        preds = np.array(preds)
+        trues = np.array(trues)
+        # if self.args.model == 'Lstm':
+        #     preds = preds.swapaxes(1, 2)
+        print('test shape:', preds.shape, trues.shape)
+        preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
+        trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
+        print('test shape:', preds.shape, trues.shape)
+
+        # result save
+        folder_path = './tt_results/' + setting + '/'
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        print("pt shape")
+        print(preds.shape)
+        print(trues.shape)
+        mae, mse, rmse, mape, mspe = metric(preds, trues)
+        print('mse:{}, mae:{}'.format(mse, mae))
+        f = open("result.txt", 'a')
+        f.write(setting + "  \n")
+        f.write('mse:{}, mae:{}'.format(mse, mae))
+        f.write('\n')
+        f.write('\n')
+        f.close()
+
+        np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
+        np.save(folder_path + 'pred.npy', preds)
+        np.save(folder_path + 'true.npy', trues)
+        if self.args.model == "Lstm":
+            self.log.logger.info(
+                "learning_rate:{} hidden_size:{} mse:{} mae:{}".format(self.args.learning_rate, self.model.num_hiddens,
+                                                                       mse, mae))
+        elif self.args.model == 'TpaLstm':
+            if self.args.mpa > 0:
+                self.log.logger.info(
+                    "hidden_state_feature:{} learning_rate: {} attention size: {} hidCNN: {} hidRNN: {} mse:{} mae:{}".format(
+                        self.args.hidden_state_feature,
+                        self.args.learning_rate, self.args.attention_size_uni_lstm, self.args.hidCNN, self.args.hidRNN,
+                        mse, mae))
+            else:
+                self.log.logger.info(
+                    "hidden_state_features:{} learning_rate: {} attention size: {} hidCNN: {} hidRNN: {} mse:{} mae:{}".format(
+                        self.args.hidden_state_features,
+                        self.args.learning_rate, self.args.attention_size_uni_lstm, self.args.hidCNN, self.args.hidRNN,
+                        mse, mae))
+        # self.log.logger.info("learning_rate:{} hidden_size:{} mse:{} mae:{}".format(self.args.learning_rate, self.args.hidden_size, mse, mae))
+        return mse, mae
+
+
     def predict(self, setting, load=False):
         pred_data, pred_loader = self._get_data(flag='pred')
 

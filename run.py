@@ -126,6 +126,8 @@ def main():
     parser.add_argument('--search_agents_no', type=int, default=10)
     parser.add_argument('--max_iter', type=int, default=10)
 
+    parser.add_argument('--test_type', type=int, default=0)
+
     args = parser.parse_args()
 
     data_parser = {
@@ -290,8 +292,12 @@ def main():
                 exp = Exp(args)
                 exp.prepare_data()
                 print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-                exp.test(setting, test=1)
-                torch.cuda.empty_cache()
+                if args.test_type == 0:
+                    exp.test(setting, test=1)
+                    torch.cuda.empty_cache()
+                else:
+                    exp.test_best(setting)
+                    torch.cuda.empty_cache()
         else:
             setting = '{}_{}_{}_{}_is{}_ops{}_bi{}_eb{}_dt{}_{}'.format(
                 args.model,
@@ -307,41 +313,53 @@ def main():
             )
             exp = Exp(args)
             exp.prepare_data()
-            func = lambda hyperparameters_list: fitFunc(exp, setting, hyperparameters_list)
-            search_agents_no = 5
-            max_iter = 5
-            if args.model == 'Lstm':
-                dim = 2
-                ub = [300, 0.05]
-                lb = [100, 0.001]
+            if args.is_training:
+                func = lambda hyperparameters_list: fitFunc(exp, setting, hyperparameters_list)
+                search_agents_no = 5
+                max_iter = 5
+                if args.model == 'Lstm':
+                    dim = 2
+                    ub = [300, 0.05]
+                    lb = [100, 0.001]
+                else:
+                    dim = 5
+                    ub = [50, 0.05, 50, 50, 300]
+                    lb = [10, 0.001, 8, 8, 60]
+                if args.mpa == 1:
+                    mpa = Mpa(search_agents_no=args.search_agents_no, max_iter=args.max_iter, dim=dim, ub=ub, lb=lb,
+                              fobj=func)
+                elif args.mpa == 2:
+                    mpa = QIMpa(search_agents_no=args.search_agents_no, max_iter=args.max_iter, dim=dim, ub=ub, lb=lb,
+                                fobj=func)
+                else:
+                    pass
+                [best_score, best_pos, convergence_curve] = mpa.opt()
+                print(best_pos)
+                print(best_score)
+                print(convergence_curve)
+                path = os.path.join("best_result", setting)
+                file_path = path + "/" + "best_record.npy"
+                min_mse, min_mae = np.load(file_path)
+                print(min_mse)
+                print(min_mae)
+                log = Logger('log/best_result', level='debug')
+                log.logger.info("============{}==============".format(setting))
+                log.logger.info("==========best pos===========")
+                log.logger.info(best_pos)
+                log.logger.info("==========best score===========")
+                log.logger.info(best_score)
+                log.logger.info(convergence_curve)
+                log.logger.info("===========min mse mae===============")
+                log.logger.info("{}  {}".format(min_mse, min_mae))
             else:
-                dim = 5
-                ub = [50, 0.05, 50, 50, 300]
-                lb = [10, 0.001, 8, 8, 60]
-            if args.mpa == 1:
-                mpa = Mpa(search_agents_no=args.search_agents_no, max_iter=args.max_iter, dim=dim, ub=ub, lb=lb, fobj=func)
-            elif args.mpa == 2:
-                mpa = QIMpa(search_agents_no=args.search_agents_no, max_iter=args.max_iter, dim=dim, ub=ub, lb=lb, fobj=func)
-            else:
-                pass
-            [best_score, best_pos, convergence_curve] = mpa.opt()
-            print(best_pos)
-            print(best_score)
-            print(convergence_curve)
-            path = os.path.join("best_result", setting)
-            file_path = path + "/" + "best_record.npy"
-            min_mse, min_mae = np.load(file_path)
-            print(min_mse)
-            print(min_mae)
-            log = Logger('log/best_result', level='debug')
-            log.logger.info("============{}==============".format(setting))
-            log.logger.info("==========best pos===========")
-            log.logger.info(best_pos)
-            log.logger.info("==========best score===========")
-            log.logger.info(best_score)
-            log.logger.info(convergence_curve)
-            log.logger.info("===========min mse mae===============")
-            log.logger.info("{}  {}".format(min_mse, min_mae))
+                print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+                if args.test_type == 0:
+                    exp.test(setting, test=1)
+                    torch.cuda.empty_cache()
+                else:
+                    exp.test_best(setting)
+                    torch.cuda.empty_cache()
+
     else:
         if args.mpa == 0:
             print("without mpa")
