@@ -401,7 +401,7 @@ class Exp_Main(Exp_Basic):
             if self.args.mpa > 0:
                 self.log.logger.info(
                     "hidden_state_feature:{} learning_rate: {} attention size: {} hidCNN: {} hidRNN: {} mse:{} mae:{}".format(
-                        self.args.hidden_state_feature,
+                        self.args.hidden_state_features,
                         self.args.learning_rate, self.args.attention_size_uni_lstm, self.args.hidCNN, self.args.hidRNN,
                         mse, mae))
             else:
