@@ -360,6 +360,8 @@ class Exp_Main(Exp_Basic):
 
                 preds.append(pred)
                 trues.append(true)
+
+
                 if i % 20 == 0:
                     input = batch_x.detach().cpu().numpy()
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
