@@ -308,7 +308,7 @@ class Exp_Main(Exp_Basic):
 
     def test_best(self, setting):
         test_data, test_loader = self.test_data, self.test_loader
-        self.model.load_state_dict(torch.load(os.path.join('./best_model/' + setting, 'checkpoint.pth')))
+        self.model.load_state_dict(torch.load(os.path.join('./best_model/' + setting, 'best_model.pth')))
 
         preds = []
         trues = []
