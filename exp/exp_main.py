@@ -310,6 +310,8 @@ class Exp_Main(Exp_Basic):
         test_data, test_loader = self.test_data, self.test_loader
         self.model.load_state_dict(torch.load(os.path.join('./best_model/' + setting, 'best_model.pth')))
 
+        self.model = torch.load(os.path.join('./best_model/' + setting, 'best_model.pth'), strict=False)
+
         preds = []
         trues = []
         folder_path = './best_test_results/' + setting + '/'
