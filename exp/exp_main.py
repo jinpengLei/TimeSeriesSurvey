@@ -370,10 +370,11 @@ class Exp_Main(Exp_Basic):
         # if self.args.model == 'Lstm':
         #     preds = preds.swapaxes(1, 2)
         print('test shape:', preds.shape, trues.shape)
-        preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
-        trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
+        preds = preds.reshape(-1, preds.shape[-1])
+        trues = trues.reshape(-1,  trues.shape[-1])
         print('test shape:', preds.shape, trues.shape)
-
+        preds = test_data.inverse_transform(preds)
+        trues = test_data.inverse_transform(trues)
         # result save
         folder_path = './tt_results/' + setting + '/'
         if not os.path.exists(folder_path):
